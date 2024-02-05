@@ -101,6 +101,9 @@ for profile in aws_profiles:
     # Initialize an empty list to store the rows
     rows = []
 
+    # Print the account ID to show the progress
+    print(f"We are generating EC2 inventory list for account {account_id}")
+
     # Create data rows
     for reservation in instances['Reservations']:
         for instance in reservation['Instances']:
