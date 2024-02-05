@@ -2,6 +2,7 @@ import boto3
 import pandas as pd
 import json
 from pkg_resources import resource_filename
+from datetime import datetime
 
 # List of AWS profiles
 aws_profiles = ['default', '181495356657-read', '475568831057-read', '840218642752-read', '244857349068-read']
@@ -147,5 +148,15 @@ for profile in aws_profiles:
     df = pd.DataFrame(rows)
     df_all = df_all._append(df, ignore_index=True)
 
+# Get the current date
+now = datetime.now()
+
+# Format the date as a string
+date_str = now.strftime('%Y-%m-%d')
+
+# Create the filename
+filename = f"EC2_inventory_list_with_prices_{date_str}.xlsx"
+
+
 # Write the DataFrame to an Excel file
-df_all.to_excel('ec2_inventory_list3.xlsx', index=False)
+df_all.to_excel(filename, index=False)
