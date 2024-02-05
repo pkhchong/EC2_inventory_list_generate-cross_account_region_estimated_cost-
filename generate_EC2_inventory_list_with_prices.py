@@ -125,9 +125,9 @@ for profile in aws_profiles:
                 'InstanceType': instance['InstanceType'],
                 'State': instance['State']['Name'],
                 'Zone': instance['Placement']['AvailabilityZone'],
-                'PrivateIpAddress': instance['PrivateIpAddress'],
-                'PrivateDnsName': instance['PrivateDnsName'],
-                'PublicDnsName': instance['PublicDnsName'],
+                'PrivateIpAddress': instance.get('PrivateIpAddress', 'N/A'),
+                'PrivateDnsName': instance.get('PrivateDnsName', 'N/A'),
+                'PublicDnsName': instance.get('PublicDnsName', 'N/A'),
                 'LaunchTime': instance['LaunchTime'].strftime('%Y-%m-%d %H:%M:%S'),
                 'Estimated_Hourly_Cost': ec2_instance_price,
                 'Estimated_montly_cost': ec2_instance_price * 24 * 30
