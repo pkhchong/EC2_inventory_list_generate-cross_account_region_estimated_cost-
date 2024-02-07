@@ -3,7 +3,7 @@ setup aws credential with different profile
 ```
 vi .aws/credential
 ```
-if you have to assume different account role. you aws credential would be simliar with this
+if you have to assume different account role. your aws credential would be simliar with this
 ```
 [181xxxxxxxxx7-read]
 role_arn = arn:aws:iam::181xxxxxxxxxx:role/ReadOnlyFull
