@@ -5,7 +5,9 @@ from pkg_resources import resource_filename
 from datetime import datetime
 
 # List of AWS profiles
-aws_profiles = ['default', '181495356657-read', '475568831057-read', '840218642752-read', '244857349068-read']
+aws_profiles = ['default', '181495356657-read', '475568831057-read', '840218642752-read', '244857349068-read', '005146673688-OrganizationAccountAccessRole', '373135327220-OrganizationAccountAccessRole', '270494154421-OrganizationAccountAccessRole']
+# aws_profiles = ['default']
+
 
 # Initialize an empty DataFrame
 df_all = pd.DataFrame()
@@ -129,9 +131,15 @@ for profile in aws_profiles:
                 'InstanceType': instance['InstanceType'],
                 'State': instance['State']['Name'],
                 'Zone': instance['Placement']['AvailabilityZone'],
+                'PublicIpAddress': instance.get('PublicIpAddress', 'N/A'),
+                #To-Do 'ElasticIp': 'Yes' if instance.get('NetworkInterfaces')[0].get('Attachment', {}).get('Status') == 'attached' else 'No',
                 'PrivateIpAddress': instance.get('PrivateIpAddress', 'N/A'),
                 'PrivateDnsName': instance.get('PrivateDnsName', 'N/A'),
                 'PublicDnsName': instance.get('PublicDnsName', 'N/A'),
+                'key_name': instance.get('KeyName', 'N/A'),
+                'security_groups': ', '.join([group['GroupName'] for group in instance['SecurityGroups']]),
+                'VpcId': instance.get('VpcId', 'N/A'),
+                'SubnetId': instance.get('SubnetId', 'N/A'),
                 'LaunchTime': instance['LaunchTime'].strftime('%Y-%m-%d %H:%M:%S'),
                 'Estimated_Hourly_Cost': ec2_instance_price,
                 'Estimated_montly_cost': ec2_instance_price * 24 * 30
