@@ -3,7 +3,7 @@ setup aws credential with different profile
 ```
 vi .aws/credential
 ```
-if you have to assume different account role. you aws credential would be simliar with this
+if you have to assume different account role. your aws credential would be simliar with this
 ```
 [181xxxxxxxxx7-read]
 role_arn = arn:aws:iam::181xxxxxxxxxx:role/ReadOnlyFull
@@ -29,7 +29,7 @@ aws_secret_access_key = MBXxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 after that you may also update list of AWS profiles in generate_EC2_inventory_list_with_prices.py
 ```
-aws_profiles = ['default', '18149xxxxxxxxxx', '4755xxxxxxxxxxxxxx', '8402xxxxxxxxxxxxx', '2448xxxxxxxxxxxxx']
+aws_profiles = ['default', '18149xxxxxxxxxx-read', '4755xxxxxxxxxxxxxx-read', '8402xxxxxxxxxxxxx-read', '2448xxxxxxxxxxxxx-read']
 ```
 
 
