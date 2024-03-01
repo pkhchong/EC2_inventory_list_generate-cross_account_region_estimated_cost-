@@ -77,84 +77,88 @@ def get_ec2_instance_hourly_price(region_code,
 
 
 
+aws_regions = boto3.session.Session().get_available_regions('ec2')
+print (aws_regions)
 
+aws_regions = ['us-east-1', 'ap-east-1']
 
 for profile in aws_profiles:
-    # Initialize the session
-    session = boto3.Session(profile_name=profile, region_name='ap-east-1')
+    for region in aws_regions:
+        # Initialize the session
+        session = boto3.Session(profile_name=profile, region_name=region)
 
-    # Initialize the EC2 and STS clients
-    ec2 = session.client('ec2')
-    sts = session.client('sts')
+        # Initialize the EC2 and STS clients
+        ec2 = session.client('ec2')
+        sts = session.client('sts')
 
-    # Get the account ID
-    account_id = sts.get_caller_identity()["Account"]
+        # Get the account ID
+        account_id = sts.get_caller_identity()["Account"]
 
-    # Retrieve the instances and their tags
-    instances = ec2.describe_instances()
+        # Retrieve the instances and their tags
+        instances = ec2.describe_instances()
 
-    # Create a list of unique tag keys across all instances
-    tag_keys = set()
-    for reservation in instances['Reservations']:
-        for instance in reservation['Instances']:
-            if 'Tags' in instance:
-                for tag in instance['Tags']:
-                    tag_keys.add(tag['Key'])
+        # Create a list of unique tag keys across all instances
+        tag_keys = set()
+        for reservation in instances['Reservations']:
+            for instance in reservation['Instances']:
+                if 'Tags' in instance:
+                    for tag in instance['Tags']:
+                        tag_keys.add(tag['Key'])
 
-    # Initialize an empty list to store the rows
-    rows = []
+        # Initialize an empty list to store the rows
+        rows = []
 
-    # Print the account ID to show the progress
-    print(f"We are generating EC2 inventory list for account {account_id}")
+        # Print the account ID to show the progress
+        print(f"We are generating EC2 inventory list for account {account_id} in region {session.region_name}...")
 
-    # Create data rows
-    for reservation in instances['Reservations']:
-        for instance in reservation['Instances']:
+        # Create data rows
+        for reservation in instances['Reservations']:
+            for instance in reservation['Instances']:
 
-            # Assume the operating system is Linux for this example
-            operating_system = 'Linux'
-            
-            # Get the instance type and region
-            instance_type = instance['InstanceType']
-            region_code = session.region_name
+                # Assume the operating system is Linux for this example
+                operating_system = 'Linux'
+                
+                # Get the instance type and region
+                instance_type = instance['InstanceType']
+                region_code = session.region_name
 
-            # Get the instance price
-            ec2_instance_price = get_ec2_instance_hourly_price(
-                region_code=region_code, 
-                instance_type=instance_type, 
-                operating_system=operating_system,
-            )
+                # Get the instance price
+                ec2_instance_price = get_ec2_instance_hourly_price(
+                    region_code=region_code, 
+                    instance_type=instance_type, 
+                    operating_system=operating_system,
+                )
 
-            row = {
-                'Account': account_id,
-                'InstanceId': instance['InstanceId'],
-                'InstanceType': instance['InstanceType'],
-                'State': instance['State']['Name'],
-                'Zone': instance['Placement']['AvailabilityZone'],
-                'PublicIpAddress': instance.get('PublicIpAddress', 'N/A'),
-                #To-Do 'ElasticIp': 'Yes' if instance.get('NetworkInterfaces')[0].get('Attachment', {}).get('Status') == 'attached' else 'No',
-                'PrivateIpAddress': instance.get('PrivateIpAddress', 'N/A'),
-                'PrivateDnsName': instance.get('PrivateDnsName', 'N/A'),
-                'PublicDnsName': instance.get('PublicDnsName', 'N/A'),
-                'key_name': instance.get('KeyName', 'N/A'),
-                'security_groups': ', '.join([group['GroupName'] for group in instance['SecurityGroups']]),
-                'VpcId': instance.get('VpcId', 'N/A'),
-                'SubnetId': instance.get('SubnetId', 'N/A'),
-                'LaunchTime': instance['LaunchTime'].strftime('%Y-%m-%d %H:%M:%S'),
-                'Estimated_Hourly_Cost': ec2_instance_price,
-                'Estimated_montly_cost': ec2_instance_price * 24 * 30
-            }
-            
+                row = {
+                    'Account': account_id,
+                    'InstanceId': instance['InstanceId'],
+                    'InstanceType': instance['InstanceType'],
+                    'State': instance['State']['Name'],
+                    'Zone': instance['Placement']['AvailabilityZone'],
+                    'PublicIpAddress': instance.get('PublicIpAddress', 'N/A'),
+                    #To-Do 'ElasticIp': 'Yes' if instance.get('NetworkInterfaces')[0].get('Attachment', {}).get('Status') == 'attached' else 'No',
+                    'PrivateIpAddress': instance.get('PrivateIpAddress', 'N/A'),
+                    'PrivateDnsName': instance.get('PrivateDnsName', 'N/A'),
+                    'PublicDnsName': instance.get('PublicDnsName', 'N/A'),
+                    'key_name': instance.get('KeyName', 'N/A'),
+                    'security_groups': ', '.join([group['GroupName'] for group in instance['SecurityGroups']]),
+                    'VpcId': instance.get('VpcId', 'N/A'),
+                    'SubnetId': instance.get('SubnetId', 'N/A'),
+                    'LaunchTime': instance['LaunchTime'].strftime('%Y-%m-%d %H:%M:%S'),
+                    'Estimated_Hourly_Cost': ec2_instance_price,
+                    'Estimated_montly_cost': ec2_instance_price * 24 * 30
+                }
+                
 
-            if 'Tags' in instance:
-                for tag in instance['Tags']:
-                    row[tag['Key']] = tag['Value']
+                if 'Tags' in instance:
+                    for tag in instance['Tags']:
+                        row[tag['Key']] = tag['Value']
 
-            rows.append(row)
+                rows.append(row)
 
-    # Create a DataFrame and append it to the main DataFrame
-    df = pd.DataFrame(rows)
-    df_all = df_all._append(df, ignore_index=True)
+        # Create a DataFrame and append it to the main DataFrame
+        df = pd.DataFrame(rows)
+        df_all = df_all._append(df, ignore_index=True)
 
 # Get the current date
 now = datetime.now()
