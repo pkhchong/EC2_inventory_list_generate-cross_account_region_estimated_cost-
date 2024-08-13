@@ -37,6 +37,7 @@ install depandancy for python
 ```
 pip install pandas
 pip install openpyxl
+pip install boto3
 ```
 
 run the EC2 inventory list generate, it took around 3mins for generate the list(since it have to get the price list for each instance)
